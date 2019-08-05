@@ -16,7 +16,7 @@ public class UserController {
 
     @RequestMapping("/")
     public String index() {
-        return "简单版reis锁";
+        return "简单版redis锁";
     }
 
     @RequestMapping("setkey")

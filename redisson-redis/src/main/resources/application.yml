@@ -1,1 +1,14 @@
+spring:
+  application:
+    name: simple-redis-lock
+  ## redis 配置
+  redis:
+    database: 1
+    host: 112.74.43.136
+    port: 6379
+    password: jingbaobao
+
+server:
+  port: 9010
+
 
