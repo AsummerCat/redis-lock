@@ -2,18 +2,16 @@ package com.linjingc.redissonredis.controller;
 
 import org.redisson.RedissonMultiLock;
 import org.redisson.RedissonRedLock;
-import org.redisson.api.RLock;
-import org.redisson.api.RReadWriteLock;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
 
 /**
  * @author cxc
@@ -191,7 +189,6 @@ public class UserController {
         for (int i = 0; i < 10; i++) {
             cachedThreadPool.execute(() -> {
                 RReadWriteLock lock = redissonClient.getReadWriteLock("key1");
-                //创建红锁  同时加锁：lock1 lock2 lock3, 红锁在一半以上部分节点上加锁成功就算成功;
                 try {
                     boolean res = lock.writeLock().tryLock(15, 10, TimeUnit.SECONDS);
                     if (res) {
@@ -217,11 +214,9 @@ public class UserController {
     @RequestMapping("readWriteLockOfRead")
     public String readWriteLockOfRead() {
         //创建10个线程进行
-
         for (int i = 0; i < 10; i++) {
             cachedThreadPool.execute(() -> {
                 RReadWriteLock lock = redissonClient.getReadWriteLock("key1");
-                //创建红锁  同时加锁：lock1 lock2 lock3, 红锁在一半以上部分节点上加锁成功就算成功;
                 try {
                     boolean res = lock.readLock().tryLock(15, 10, TimeUnit.SECONDS);
                     if (res) {
@@ -237,6 +232,118 @@ public class UserController {
                 }
             });
         }
+        return "SUCCESS";
+    }
+
+    /**
+     * 信号量（Semaphore）
+     * RSemaphore
+     */
+    @RequestMapping("SemaphoreLock")
+    public String semaphoreLock() {
+        //创建10个线程进行
+        //创建信号量
+        RSemaphore semaphore = redissonClient.getSemaphore("semaphore");
+        //设置许可数量
+        semaphore.trySetPermits(20);
+
+
+        for (int i = 0; i < 40; i++) {
+            cachedThreadPool.execute(() -> {
+                try {
+                    //获得一个许可
+                    semaphore.acquire();
+                    System.out.println("获取到许可" + new Date());
+                    Thread.sleep(4000);
+                    //释放一个许可
+                    semaphore.release();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //移除信号量
+//                semaphore.unlink();
+            });
+        }
+        return "SUCCESS";
+    }
+
+
+    /**
+     * 可过期性信号量（PermitExpirableSemaphore）
+     * Redisson的可过期性信号量（PermitExpirableSemaphore）实在RSemaphore对象的基础上，
+     * 为每个信号增加了一个过期时间。每个信号可以通过独立的ID来辨识，释放时只能通过提交这个ID才能释放。
+     */
+    @RequestMapping("PermitExpirableSemaphoreLock")
+    public String permitExpirableSemaphoreLock() {
+        //创建10个线程进行
+        //创建信号量
+        RPermitExpirableSemaphore semaphore = redissonClient.getPermitExpirableSemaphore("semaphore1");
+        semaphore.trySetPermits(5);
+
+        for (int i = 0; i < 40; i++) {
+            cachedThreadPool.execute(() -> {
+                try {
+                    //获取一个信号，有效期只有2秒钟。
+                    String acquire = semaphore.acquire(2, TimeUnit.SECONDS);
+                    //获取一个信号，等待只有3秒钟。
+                    //  String acquire = semaphore.tryAcquire(3, TimeUnit.SECONDS);
+                    //获取一个信号，等待只有3秒钟,有效期只有2秒钟;
+//                      String acquire = semaphore.tryAcquire(3,2, TimeUnit.SECONDS);
+
+                    Thread.sleep(4000);
+                    System.out.println("获取到许可" + new Date());
+                    //释放一个许可
+                    semaphore.release(acquire);
+                } catch (InterruptedException e) {
+                    System.out.println("线程中断 超出有效时间");
+                }
+                //移除信号量
+//                semaphore.unlink();
+            });
+        }
+        return "SUCCESS";
+    }
+
+
+    /**
+     * 闭锁（CountDownLatch） 类似发令枪
+     * Redisson的分布式闭锁（CountDownLatch）Java对象RCountDownLatch采用了与java.util.concurrent.CountDownLatch相似的接口和用法。
+     */
+    @RequestMapping("CountDownLatchLock")
+    public String countDownLatchLock() throws InterruptedException {
+        //创建10个线程进行
+        //创建发令枪
+        RCountDownLatch countDownLatchTest = redissonClient.getCountDownLatch("CountDownLatchTest");
+        //设置发令枪数量;
+        countDownLatchTest.trySetCount(10);
+
+        //await
+        for (int i = 0; i < 40; i++) {
+            cachedThreadPool.execute(() -> {
+                try {
+                    //等待发令枪
+                    countDownLatchTest.await();
+                    System.out.println("起跑" + new Date());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        //计数器
+        for (int i = 0; i < 10; i++) {
+            cachedThreadPool.execute(() -> {
+                try {
+                    Thread.sleep(new Random().nextInt(10+1)*1000);
+                    System.out.println("准备好了" + new Date());
+                    countDownLatchTest.countDown();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        //移除发令枪
+        countDownLatchTest.unlink();
         return "SUCCESS";
     }
 }
