@@ -322,6 +322,8 @@ public class UserController {
             cachedThreadPool.execute(() -> {
                 try {
                     //等待发令枪
+
+                    System.out.println("等待发令枪" + new Date());
                     countDownLatchTest.await();
                     System.out.println("起跑" + new Date());
                 } catch (Exception e) {
@@ -341,8 +343,10 @@ public class UserController {
                 }
             });
         }
-
+        //等待发令枪
+        countDownLatchTest.await();
         //移除发令枪
+        System.out.println("出发成功");
         countDownLatchTest.unlink();
         return "SUCCESS";
     }
