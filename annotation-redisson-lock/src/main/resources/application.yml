@@ -1,6 +1,6 @@
 spring:
   application:
-    name: redisson-redis-lock
+    name: annotaion-redisson-redis-lock
   ## redis 配置
   redis:
     database: 1
@@ -11,4 +11,9 @@ spring:
 server:
   port: 9010
 
+
+linjingc:
+  lock:
+    waitTime: 30
+    leaseTime: 15
 
