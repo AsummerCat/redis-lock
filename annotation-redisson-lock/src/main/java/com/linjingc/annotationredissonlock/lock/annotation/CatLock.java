@@ -1,8 +1,8 @@
 package com.linjingc.annotationredissonlock.lock.annotation;
 
 import com.linjingc.annotationredissonlock.lock.LockType;
-import org.springframework.boot.autoconfigure.klock.model.LockTimeoutStrategy;
-import org.springframework.boot.autoconfigure.klock.model.ReleaseTimeoutStrategy;
+import com.linjingc.annotationredissonlock.lock.Strategy.LockTimeoutStrategy;
+import com.linjingc.annotationredissonlock.lock.Strategy.ReleaseTimeoutStrategy;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
 /**
  * 方法级别
  * 加锁注解
+ *
  * @author cxc
  * @date 2019年8月8日17:56:15
  */

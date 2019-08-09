@@ -8,6 +8,11 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 
+/**
+ * redis 锁 redisson配置
+ * @author cxc
+ * @date 2019年8月9日18:00:08
+ */
 @Configuration
 public class RedissonConfig {
 
