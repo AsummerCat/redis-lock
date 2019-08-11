@@ -64,6 +64,8 @@ public class CatLockAspectAop {
         //MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         //获取自定义锁信息
         LockInfo lockInfo = lockInfoProvider.get(joinPoint, catLock);
+        //设置当前锁状态
+        currentThreadLockRes.set(new LockRes(lockInfo, false));
         //根据工厂模式 获取到Lock
         Lock lock = lockFactory.getLock(lockInfo);
         //加锁

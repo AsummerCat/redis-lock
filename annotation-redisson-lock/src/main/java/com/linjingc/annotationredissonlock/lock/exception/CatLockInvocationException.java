@@ -1,7 +1,8 @@
 package com.linjingc.annotationredissonlock.lock.exception;
 
 /**
- * 处理锁超时错误
+ * 自定义处理锁错误
+ *
  * @author cxc
  * @date 2019年8月8日18:16:08
  */
