@@ -1,4 +1,4 @@
-package com.linjingc.annotationredissonlock.lock.priovider;
+package com.linjingc.annotationredissonlock.lock.core;
 
 import com.linjingc.annotationredissonlock.lock.LockType;
 import com.linjingc.annotationredissonlock.lock.annotation.CatLock;
@@ -30,6 +30,9 @@ public class LockInfoProvider {
     @Autowired
     private RedisLockConfig redisLockConfig;
 
+    /**
+     * 自定义业务key
+     */
     @Autowired
     private BusinessKeyProvider businessKeyProvider;
 
@@ -46,7 +49,7 @@ public class LockInfoProvider {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         //获取到锁类型
         LockType type = catLock.lockType();
-        //根据自定义配置 获取keyName
+        //根据自定义业务key 获取keyName
         String businessKeyName = businessKeyProvider.getKeyName(joinPoint, catLock);
         //拼接lockName
         String lockName = LOCK_NAME_PREFIX + LOCK_NAME_SEPARATOR + getName(catLock.name(), signature) + businessKeyName;
@@ -68,6 +71,7 @@ public class LockInfoProvider {
 
     /**
      * 获取锁名称
+     *
      * @param annotationName
      * @param signature
      * @return

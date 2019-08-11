@@ -22,5 +22,11 @@ public interface Lock {
      * @return
      */
     boolean release();
+
+    /**
+     * 当前锁是否被释放过
+     */
+
+
 }
 

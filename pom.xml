@@ -16,6 +16,7 @@
 	<modules>
 		<module>redisson-redis</module>
 		<module>simple-redis-lock</module>
+		<module>annotation-redisson-lock</module>
 	</modules>
 
 	<properties>
