@@ -133,7 +133,7 @@ public class CatLockAspectAop {
             boolean releaseRes = currentThreadLock.get().release();
             // avoid release lock twice when exception happens below
             lockRes.setUseState(true);
-            if (releaseRes) {
+            if (!releaseRes) {
                 handleReleaseTimeout(catLock, lockRes.getLockInfo(), joinPoint);
             }
         }
